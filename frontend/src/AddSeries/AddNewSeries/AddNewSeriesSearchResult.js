@@ -8,6 +8,7 @@ import Link from 'Components/Link/Link';
 import SeriesPoster from 'Series/SeriesPoster';
 import AddNewSeriesModal from './AddNewSeriesModal';
 import styles from './AddNewSeriesSearchResult.css';
+import MetadataAttribution from 'Components/MetadataAttribution';
 
 class AddNewSeriesSearchResult extends Component {
 
@@ -188,6 +189,8 @@ class AddNewSeriesSearchResult extends Component {
             <div className={styles.overview}>
               {overview}
             </div>
+
+            <MetadataAttribution />
           </div>
         </div>
 

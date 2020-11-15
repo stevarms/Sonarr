@@ -8,6 +8,7 @@ import toggleSelected from 'Utilities/Table/toggleSelected';
 import { align, icons, kinds, sizes, sortDirections, tooltipPositions } from 'Helpers/Props';
 import fonts from 'Styles/Variables/fonts';
 import HeartRating from 'Components/HeartRating';
+import MetadataAttribution from 'Components/MetadataAttribution';
 import Icon from 'Components/Icon';
 import IconButton from 'Components/Link/IconButton';
 import Label from 'Components/Label';
@@ -580,11 +581,13 @@ class SeriesDetails extends Component {
                 <Measure onMeasure={this.onMeasure}>
                   <div className={styles.overview}>
                     <TextTruncate
-                      line={Math.floor(overviewHeight / (defaultFontSize * lineHeight))}
+                      line={Math.floor(overviewHeight / (defaultFontSize * lineHeight)) - 1}
                       text={overview}
                     />
                   </div>
                 </Measure>
+
+                <MetadataAttribution />
               </div>
             </div>
           </div>

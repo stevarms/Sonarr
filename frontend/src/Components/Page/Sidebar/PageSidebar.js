@@ -124,6 +124,10 @@ const links = [
         to: '/settings/metadata'
       },
       {
+        title: 'Metadata Source',
+        to: '/settings/metadatasource'
+      },
+      {
         title: 'Tags',
         to: '/settings/tags'
       },
@@ -497,7 +501,7 @@ class PageSidebar extends Component {
                               key={child.to}
                               title={child.title}
                               to={child.to}
-                              isActive={pathname.startsWith(child.to)}
+                              isActive={pathname === child.to}
                               isParentItem={false}
                               isChildItem={true}
                               statusComponent={child.statusComponent}

@@ -25,6 +25,7 @@ import ImportListSettingsConnector from 'Settings/ImportLists/ImportListSettings
 import DownloadClientSettingsConnector from 'Settings/DownloadClients/DownloadClientSettingsConnector';
 import NotificationSettings from 'Settings/Notifications/NotificationSettings';
 import MetadataSettings from 'Settings/Metadata/MetadataSettings';
+import MetadataSourceSettings from 'Settings/MetadataSource/MetadataSourceSettings';
 import TagSettings from 'Settings/Tags/TagSettings';
 import GeneralSettingsConnector from 'Settings/General/GeneralSettingsConnector';
 import UISettingsConnector from 'Settings/UI/UISettingsConnector';
@@ -184,6 +185,11 @@ function AppRoutes(props) {
       <Route
         path="/settings/metadata"
         component={MetadataSettings}
+      />
+
+      <Route
+        path="/settings/metadatasource"
+        component={MetadataSourceSettings}
       />
 
       <Route

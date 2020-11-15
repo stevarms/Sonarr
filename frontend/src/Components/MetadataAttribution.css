@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.attribution {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  color: $mediumGray;
+  font-size: $defaultFontSize;
+
+  &:hover {
+    color: $darkGray;
+    text-decoration: none;
+  }
+}

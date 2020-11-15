@@ -21,6 +21,7 @@ module.exports = {
   darkGray: '#888',
   gray: '#adadad',
   lightGray: '#ddd',
+  mediumGray: '#999',
   disabledInputColor: '#808080',
 
   // Theme Colors
