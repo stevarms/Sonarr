@@ -162,7 +162,7 @@ PackageMacOS()
         cp $folder/libMonoPosixHelper.* $folder/Sonarr.Update
     fi
 
-    ProgressEnd 'Creating MacOS Package'
+    ProgressEnd "Creating $runtime Package for $framework"
 }
 
 PackageMacOSApp()
@@ -185,7 +185,7 @@ PackageMacOSApp()
     echo "Removing Update Folder"
     rm -r $folder/Sonarr.app/Contents/MacOS/Sonarr.Update
 
-    ProgressEnd 'Creating macOS App Package'
+    ProgressEnd "Creating $runtime App Package for $framework"
 }
 
 PackageWindows()
@@ -208,7 +208,7 @@ PackageWindows()
     echo "Adding Sonarr.Windows to UpdatePackage"
     cp $folder/Sonarr.Windows.* $folder/Sonarr.Update
 
-    ProgressEnd 'Creating Windows Package'
+    ProgressEnd "Creating Windows Package for $framework"
 }
 
 Package()
@@ -238,11 +238,13 @@ PackageTests()
     local framework="$1"
     local runtime="$2"
 
+    ProgressStart "Creating $runtime Test Package for $framework"
+
     cp test.sh "$testPackageFolder/$framework/$runtime/publish"
 
     rm -f $testPackageFolder/$framework/$runtime/*.log.config
 
-    ProgressEnd 'Creating Test Package'
+    ProgressEnd "Creating $runtime Test Package for $framework"
 }
 
 UploadTestArtifacts()
