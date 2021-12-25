@@ -245,6 +245,47 @@ PackageTests()
     ProgressEnd 'Creating Test Package'
 }
 
+UploadTestArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing Test Artifacts'
+
+    # Tests
+    for dir in $testPackageFolder/$framework/*
+    do
+        local runtime=$(basename "$dir")
+        echo "##teamcity[publishArtifacts '$testPackageFolder/$framework/$runtime/publish/** => tests.$runtime.zip']"
+    done
+    
+    ProgressEnd 'Publishing Test Artifacts'
+}
+
+UploadArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing Artifacts'
+
+    # Releases
+    for dir in $artifactsFolder/*
+    do
+        local runtime=$(basename "$dir")
+        local extension="tar.gz"
+
+        if [[ "$runtime" =~ win-|-app ]]; then
+            extension="zip"
+        fi
+
+        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Sonarr.$BRANCH.$BUILD_NUMBER.$runtime.$extension']"
+    done
+
+    # Debian Package
+    echo "##teamcity[publishArtifacts 'distribution/** => distribution.zip']"
+    
+    ProgressEnd 'Publishing Artifacts'
+}
+
 # Use mono or .net depending on OS
 case "$(uname -s)" in
     CYGWIN*|MINGW32*|MINGW64*|MSYS*)
@@ -332,7 +373,7 @@ then
         PackageTests "net6.0" "win-x86"
         PackageTests "net6.0" "linux-x64"
         PackageTests "net6.0" "linux-musl-x64"
-        PackageTests "net6.0" "osx-x64"
+        PackageTests "net6.0" "macos-x64"
         if [ "$ENABLE_BSD" = "YES" ];
         then
             PackageTests "net6.0" "freebsd-x64"
@@ -340,6 +381,8 @@ then
     else
         PackageTests "$FRAMEWORK" "$RID"
     fi
+
+    UploadTestArtifacts "net6.0"
 fi
 
 if [ "$FRONTEND" = "YES" ];
@@ -380,4 +423,6 @@ then
     else
         Package "$FRAMEWORK" "$RID"
     fi
+
+    UploadArtifacts "net6.0"
 fi
