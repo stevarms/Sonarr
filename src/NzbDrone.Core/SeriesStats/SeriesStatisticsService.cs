@@ -29,7 +29,10 @@ namespace NzbDrone.Core.SeriesStats
         {
             var stats = _seriesStatisticsRepository.SeriesStatistics(seriesId);
 
-            if (stats == null || stats.Count == 0) return new SeriesStatistics();
+            if (stats == null || stats.Count == 0)
+            {
+                return new SeriesStatistics();
+            }
 
             return MapSeriesStatistics(stats);
         }
@@ -43,7 +46,8 @@ namespace NzbDrone.Core.SeriesStats
                                        EpisodeFileCount = seasonStatistics.Sum(s => s.EpisodeFileCount),
                                        EpisodeCount = seasonStatistics.Sum(s => s.EpisodeCount),
                                        TotalEpisodeCount = seasonStatistics.Sum(s => s.TotalEpisodeCount),
-                                       SizeOnDisk = seasonStatistics.Sum(s => s.SizeOnDisk)
+                                       SizeOnDisk = seasonStatistics.Sum(s => s.SizeOnDisk),
+                                       ReleaseGroups = seasonStatistics.SelectMany(s => s.ReleaseGroups).Distinct().ToList()
                                    };
 
             var nextAiring = seasonStatistics.Where(s => s.NextAiring != null)

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { kinds } from 'Helpers/Props';
 import Label from 'Components/Label';
+import { kinds } from 'Helpers/Props';
 import styles from './ImportSeriesTitle.css';
 
 function ImportSeriesTitle(props) {
@@ -20,24 +20,27 @@ function ImportSeriesTitle(props) {
 
       {
         !title.contains(year) &&
-        year > 0 &&
+        year > 0 ?
           <span className={styles.year}>
             ({year})
-          </span>
+          </span> :
+          null
       }
 
       {
-        !!network &&
-          <Label>{network}</Label>
+        network ?
+          <Label>{network}</Label> :
+          null
       }
 
       {
-        isExistingSeries &&
+        isExistingSeries ?
           <Label
             kind={kinds.WARNING}
           >
             Existing
-          </Label>
+          </Label> :
+          null
       }
     </div>
   );

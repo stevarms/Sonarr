@@ -1,20 +1,20 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import TextInput from 'Components/Form/TextInput';
+import Button from 'Components/Link/Button';
+import LoadingIndicator from 'Components/Loading/LoadingIndicator';
+import ModalBody from 'Components/Modal/ModalBody';
+import ModalContent from 'Components/Modal/ModalContent';
+import ModalFooter from 'Components/Modal/ModalFooter';
+import ModalHeader from 'Components/Modal/ModalHeader';
+import Scroller from 'Components/Scroller/Scroller';
+import Table from 'Components/Table/Table';
+import TableBody from 'Components/Table/TableBody';
+import { kinds, scrollDirections } from 'Helpers/Props';
 import getErrorMessage from 'Utilities/Object/getErrorMessage';
 import getSelectedIds from 'Utilities/Table/getSelectedIds';
 import selectAll from 'Utilities/Table/selectAll';
 import toggleSelected from 'Utilities/Table/toggleSelected';
-import { kinds, scrollDirections } from 'Helpers/Props';
-import TextInput from 'Components/Form/TextInput';
-import Button from 'Components/Link/Button';
-import LoadingIndicator from 'Components/Loading/LoadingIndicator';
-import ModalContent from 'Components/Modal/ModalContent';
-import ModalHeader from 'Components/Modal/ModalHeader';
-import ModalBody from 'Components/Modal/ModalBody';
-import ModalFooter from 'Components/Modal/ModalFooter';
-import Scroller from 'Components/Scroller/Scroller';
-import Table from 'Components/Table/Table';
-import TableBody from 'Components/Table/TableBody';
 import SelectEpisodeRow from './SelectEpisodeRow';
 import styles from './SelectEpisodeModalContent.css';
 
@@ -59,28 +59,28 @@ class SelectEpisodeModalContent extends Component {
 
   getSelectedIds = () => {
     return getSelectedIds(this.state.selectedState);
-  }
+  };
 
   //
   // Listeners
 
   onFilterChange = ({ value }) => {
     this.setState({ filter: value.toLowerCase() });
-  }
+  };
 
   onSelectAllChange = ({ value }) => {
     this.setState(selectAll(this.state.selectedState, value));
-  }
+  };
 
   onSelectedChange = ({ id, value, shiftKey = false }) => {
     this.setState((state) => {
       return toggleSelected(state, this.props.items, id, value, shiftKey);
     });
-  }
+  };
 
   onEpisodesSelect = () => {
     this.props.onEpisodesSelect(this.getSelectedIds());
-  }
+  };
 
   //
   // Render
@@ -96,6 +96,7 @@ class SelectEpisodeModalContent extends Component {
       isAnime,
       sortKey,
       sortDirection,
+      modalTitle,
       onSortPress,
       onModalClose
     } = this.props;
@@ -121,7 +122,7 @@ class SelectEpisodeModalContent extends Component {
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
           <div className={styles.header}>
-            Manual Import - Select Episode(s)
+            {modalTitle} - Select Episode(s)
           </div>
 
         </ModalHeader>
@@ -235,6 +236,7 @@ SelectEpisodeModalContent.propTypes = {
   isAnime: PropTypes.bool.isRequired,
   sortKey: PropTypes.string,
   sortDirection: PropTypes.string,
+  modalTitle: PropTypes.string,
   onSortPress: PropTypes.func.isRequired,
   onEpisodesSelect: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired

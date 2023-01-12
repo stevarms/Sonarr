@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import combinePath from 'Utilities/String/combinePath';
-import createCommandExecutingSelector from 'Store/Selectors/createCommandExecutingSelector';
+import * as commandNames from 'Commands/commandNames';
 import { executeCommand } from 'Store/Actions/commandActions';
 import { fetchLogFiles } from 'Store/Actions/systemActions';
-import * as commandNames from 'Commands/commandNames';
+import createCommandExecutingSelector from 'Store/Selectors/createCommandExecutingSelector';
+import combinePath from 'Utilities/String/combinePath';
 import LogFiles from './LogFiles';
 
 function createMapStateToProps() {
@@ -50,22 +50,23 @@ class LogFilesConnector extends Component {
     this.props.fetchLogFiles();
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.deleteFilesExecuting && !this.props.deleteFilesExecuting) {
-      this.props.fetchLogFiles();
-    }
-  }
-
   //
   // Listeners
 
   onRefreshPress = () => {
     this.props.fetchLogFiles();
-  }
+  };
 
   onDeleteFilesPress = () => {
-    this.props.executeCommand({ name: commandNames.DELETE_LOG_FILES });
-  }
+    this.props.executeCommand({
+      name: commandNames.DELETE_LOG_FILES,
+      commandFinished: this.onCommandFinished
+    });
+  };
+
+  onCommandFinished = () => {
+    this.props.fetchLogFiles();
+  };
 
   //
   // Render

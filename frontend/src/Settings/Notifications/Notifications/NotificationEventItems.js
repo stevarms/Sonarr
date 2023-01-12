@@ -59,7 +59,7 @@ function NotificationEventItems(props) {
             <FormInputGroup
               type={inputTypes.CHECK}
               name="onDownload"
-              helpText="On Download"
+              helpText="On Import"
               isDisabled={!supportsOnDownload.value}
               {...onDownload}
               onChange={onInputChange}
@@ -68,16 +68,16 @@ function NotificationEventItems(props) {
 
           {
             onDownload.value &&
-            <div>
-              <FormInputGroup
-                type={inputTypes.CHECK}
-                name="onUpgrade"
-                helpText="On Upgrade"
-                isDisabled={!supportsOnUpgrade.value}
-                {...onUpgrade}
-                onChange={onInputChange}
-              />
-            </div>
+              <div>
+                <FormInputGroup
+                  type={inputTypes.CHECK}
+                  name="onUpgrade"
+                  helpText="On Upgrade"
+                  isDisabled={!supportsOnUpgrade.value}
+                  {...onUpgrade}
+                  onChange={onInputChange}
+                />
+              </div>
           }
 
           <div>
@@ -115,16 +115,16 @@ function NotificationEventItems(props) {
 
           {
             onEpisodeFileDelete.value &&
-            <div>
-              <FormInputGroup
-                type={inputTypes.CHECK}
-                name="onEpisodeFileDeleteForUpgrade"
-                helpText="On Episode File Delete For Upgrade"
-                isDisabled={!supportsOnEpisodeFileDeleteForUpgrade.value}
-                {...onEpisodeFileDeleteForUpgrade}
-                onChange={onInputChange}
-              />
-            </div>
+              <div>
+                <FormInputGroup
+                  type={inputTypes.CHECK}
+                  name="onEpisodeFileDeleteForUpgrade"
+                  helpText="On Episode File Delete For Upgrade"
+                  isDisabled={!supportsOnEpisodeFileDeleteForUpgrade.value}
+                  {...onEpisodeFileDeleteForUpgrade}
+                  onChange={onInputChange}
+                />
+              </div>
           }
 
           <div>
@@ -140,16 +140,16 @@ function NotificationEventItems(props) {
 
           {
             onHealthIssue.value &&
-            <div>
-              <FormInputGroup
-                type={inputTypes.CHECK}
-                name="includeHealthWarnings"
-                helpText="Include Health Warnings"
-                isDisabled={!supportsOnHealthIssue.value}
-                {...includeHealthWarnings}
-                onChange={onInputChange}
-              />
-            </div>
+              <div>
+                <FormInputGroup
+                  type={inputTypes.CHECK}
+                  name="includeHealthWarnings"
+                  helpText="Include Health Warnings"
+                  isDisabled={!supportsOnHealthIssue.value}
+                  {...includeHealthWarnings}
+                  onChange={onInputChange}
+                />
+              </div>
           }
 
           <div>

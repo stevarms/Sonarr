@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { scrollDirections } from 'Helpers/Props';
+import { Grid, WindowScroller } from 'react-virtualized';
 import Measure from 'Components/Measure';
 import Scroller from 'Components/Scroller/Scroller';
-import { WindowScroller, Grid } from 'react-virtualized';
+import { scrollDirections } from 'Helpers/Props';
 import hasDifferentItemsOrOrder from 'Utilities/Object/hasDifferentItemsOrOrder';
 import styles from './VirtualTable.css';
 
@@ -81,7 +81,7 @@ class VirtualTable extends Component {
 
   setGridRef = (ref) => {
     this._grid = ref;
-  }
+  };
 
   //
   // Listeners
@@ -90,7 +90,7 @@ class VirtualTable extends Component {
     this.setState({
       width
     });
-  }
+  };
 
   //
   // Render
@@ -103,6 +103,7 @@ class VirtualTable extends Component {
       scroller,
       header,
       headerHeight,
+      rowHeight,
       rowRenderer,
       ...otherProps
     } = this.props;
@@ -153,7 +154,7 @@ class VirtualTable extends Component {
                     width={width}
                     height={height}
                     headerHeight={height - headerHeight}
-                    rowHeight={ROW_HEIGHT}
+                    rowHeight={rowHeight}
                     rowCount={items.length}
                     columnCount={1}
                     columnWidth={width}
@@ -194,7 +195,8 @@ VirtualTable.propTypes = {
 
 VirtualTable.defaultProps = {
   className: styles.tableContainer,
-  headerHeight: 38
+  headerHeight: 38,
+  rowHeight: ROW_HEIGHT
 };
 
 export default VirtualTable;

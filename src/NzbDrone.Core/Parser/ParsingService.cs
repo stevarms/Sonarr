@@ -6,6 +6,8 @@ using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Instrumentation.Extensions;
 using NzbDrone.Core.DataAugmentation.Scene;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Languages;
+using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Tv;
 
@@ -104,6 +106,7 @@ namespace NzbDrone.Core.Parser
                 {
                     foundSeries = series;
                 }
+
                 foundTvdbId = tvdbId;
             }
 
@@ -160,11 +163,24 @@ namespace NzbDrone.Core.Parser
                 {
                     sceneSource = false;
                 }
+                else if (sceneMapping.Type == "XemService" &&
+                         sceneMapping.SceneSeasonNumber.HasValue &&
+                         parsedEpisodeInfo.SeasonNumber == 1 &&
+                         sceneMapping.SceneSeasonNumber != parsedEpisodeInfo.SeasonNumber)
+                {
+                    remoteEpisode.MappedSeasonNumber = sceneMapping.SceneSeasonNumber.Value;
+                }
             }
 
             if (series == null)
             {
-                series = GetSeries(parsedEpisodeInfo, tvdbId, tvRageId, sceneMapping, searchCriteria);
+                var seriesMatch = FindSeries(parsedEpisodeInfo, tvdbId, tvRageId, sceneMapping, searchCriteria);
+
+                if (seriesMatch != null)
+                {
+                    series = seriesMatch.Series;
+                    remoteEpisode.SeriesMatchType = seriesMatch.MatchType;
+                }
             }
 
             if (series != null)
@@ -176,6 +192,8 @@ namespace NzbDrone.Core.Parser
                     remoteEpisode.Episodes = GetEpisodes(parsedEpisodeInfo, series, remoteEpisode.MappedSeasonNumber, sceneSource, searchCriteria);
                 }
             }
+
+            remoteEpisode.Languages = parsedEpisodeInfo.Languages;
 
             if (remoteEpisode.Episodes == null)
             {
@@ -209,12 +227,16 @@ namespace NzbDrone.Core.Parser
             {
                 if (series.UseSceneNumbering && sceneSource)
                 {
-                    return _episodeService.GetEpisodesBySceneSeason(series.Id, mappedSeasonNumber);
+                    var episodes = _episodeService.GetEpisodesBySceneSeason(series.Id, mappedSeasonNumber);
+
+                    // If episodes were found by the scene season number return them, otherwise fallback to look-up by season number
+                    if (episodes.Any())
+                    {
+                        return episodes;
+                    }
                 }
-                else
-                {
-                    return _episodeService.GetEpisodesBySeason(series.Id, mappedSeasonNumber);
-                }
+
+                return _episodeService.GetEpisodesBySeason(series.Id, mappedSeasonNumber);
             }
 
             if (parsedEpisodeInfo.IsDaily)
@@ -236,7 +258,13 @@ namespace NzbDrone.Core.Parser
 
             if (parsedEpisodeInfo.IsPossibleSceneSeasonSpecial)
             {
-                parsedEpisodeInfo = ParseSpecialEpisodeTitle(parsedEpisodeInfo, parsedEpisodeInfo.ReleaseTitle, series) ?? parsedEpisodeInfo;
+                var parsedSpecialEpisodeInfo = ParseSpecialEpisodeTitle(parsedEpisodeInfo, parsedEpisodeInfo.ReleaseTitle, series);
+
+                if (parsedSpecialEpisodeInfo != null)
+                {
+                    // Use the season number and disable scene source since the season/episode numbers that were returned are not scene numbers
+                    return GetStandardEpisodes(series, parsedSpecialEpisodeInfo, parsedSpecialEpisodeInfo.SeasonNumber, false, searchCriteria);
+                }
             }
 
             return GetStandardEpisodes(series, parsedEpisodeInfo, mappedSeasonNumber, sceneSource, searchCriteria);
@@ -313,7 +341,7 @@ namespace NzbDrone.Core.Parser
                     FullSeason = false,
                     Quality = QualityParser.ParseQuality(releaseTitle),
                     ReleaseGroup = Parser.ParseReleaseGroup(releaseTitle),
-                    Language = LanguageParser.ParseLanguage(releaseTitle),
+                    Languages = LanguageParser.ParseLanguages(releaseTitle),
                     Special = true
                 };
 
@@ -324,7 +352,7 @@ namespace NzbDrone.Core.Parser
             return null;
         }
 
-        private Series GetSeries(ParsedEpisodeInfo parsedEpisodeInfo, int tvdbId, int tvRageId, SceneMapping sceneMapping, SearchCriteriaBase searchCriteria)
+        private FindSeriesResult FindSeries(ParsedEpisodeInfo parsedEpisodeInfo, int tvdbId, int tvRageId, SceneMapping sceneMapping, SearchCriteriaBase searchCriteria)
         {
             Series series = null;
 
@@ -332,7 +360,7 @@ namespace NzbDrone.Core.Parser
             {
                 if (searchCriteria != null && searchCriteria.Series.TvdbId == sceneMapping.TvdbId)
                 {
-                    return searchCriteria.Series;
+                    return new FindSeriesResult(searchCriteria.Series, SeriesMatchType.Alias);
                 }
 
                 series = _seriesService.FindByTvdbId(sceneMapping.TvdbId);
@@ -343,14 +371,14 @@ namespace NzbDrone.Core.Parser
                     return null;
                 }
 
-                return series;
+                return new FindSeriesResult(series, SeriesMatchType.Alias);
             }
 
             if (searchCriteria != null)
             {
                 if (searchCriteria.Series.CleanTitle == parsedEpisodeInfo.SeriesTitle.CleanSeriesTitle())
                 {
-                    return searchCriteria.Series;
+                    return new FindSeriesResult(searchCriteria.Series, SeriesMatchType.Title);
                 }
 
                 if (tvdbId > 0 && tvdbId == searchCriteria.Series.TvdbId)
@@ -362,7 +390,7 @@ namespace NzbDrone.Core.Parser
                            .WriteSentryWarn("TvdbIdMatch", tvdbId.ToString(), parsedEpisodeInfo.SeriesTitle)
                            .Write();
 
-                    return searchCriteria.Series;
+                    return new FindSeriesResult(searchCriteria.Series, SeriesMatchType.Id);
                 }
 
                 if (tvRageId > 0 && tvRageId == searchCriteria.Series.TvRageId)
@@ -374,20 +402,28 @@ namespace NzbDrone.Core.Parser
                            .WriteSentryWarn("TvRageIdMatch", tvRageId.ToString(), parsedEpisodeInfo.SeriesTitle)
                            .Write();
 
-                    return searchCriteria.Series;
+                    return new FindSeriesResult(searchCriteria.Series, SeriesMatchType.Id);
                 }
             }
 
+            var matchType = SeriesMatchType.Unknown;
             series = _seriesService.FindByTitle(parsedEpisodeInfo.SeriesTitle);
+
+            if (series != null)
+            {
+                matchType = SeriesMatchType.Title;
+            }
 
             if (series == null && parsedEpisodeInfo.SeriesTitleInfo.AllTitles != null)
             {
                 series = GetSeriesByAllTitles(parsedEpisodeInfo);
+                matchType = SeriesMatchType.Title;
             }
 
             if (series == null && parsedEpisodeInfo.SeriesTitleInfo.Year > 0)
             {
                 series = _seriesService.FindByTitle(parsedEpisodeInfo.SeriesTitleInfo.TitleWithoutYear, parsedEpisodeInfo.SeriesTitleInfo.Year);
+                matchType = SeriesMatchType.Title;
             }
 
             if (series == null && tvdbId > 0)
@@ -402,6 +438,8 @@ namespace NzbDrone.Core.Parser
                            .Property("ParsedEpisodeInfo", parsedEpisodeInfo)
                            .WriteSentryWarn("TvdbIdMatch", tvdbId.ToString(), parsedEpisodeInfo.SeriesTitle)
                            .Write();
+
+                    matchType = SeriesMatchType.Id;
                 }
             }
 
@@ -417,6 +455,8 @@ namespace NzbDrone.Core.Parser
                            .Property("ParsedEpisodeInfo", parsedEpisodeInfo)
                            .WriteSentryWarn("TvRageIdMatch", tvRageId.ToString(), parsedEpisodeInfo.SeriesTitle)
                            .Write();
+
+                    matchType = SeriesMatchType.Id;
                 }
             }
 
@@ -426,7 +466,7 @@ namespace NzbDrone.Core.Parser
                 return null;
             }
 
-            return series;
+            return new FindSeriesResult(series, matchType);
         }
 
         private Episode GetDailyEpisode(Series series, string airDate, int? part, SearchCriteriaBase searchCriteria)
@@ -482,7 +522,7 @@ namespace NzbDrone.Core.Parser
                         episodes = _episodeService.FindEpisodesBySceneNumbering(series.Id, parsedEpisodeInfo.SeasonNumber, absoluteEpisodeNumber);
 
                         if (episodes.Empty())
-                        { 
+                        {
                             var episode = _episodeService.FindEpisode(series.Id, parsedEpisodeInfo.SeasonNumber, absoluteEpisodeNumber);
                             episodes.AddIfNotNull(episode);
                         }
@@ -575,7 +615,6 @@ namespace NzbDrone.Core.Parser
                 {
                     result.Add(episodeInfo);
                 }
-
                 else
                 {
                     _logger.Debug("Unable to find {0}", parsedEpisodeInfo);

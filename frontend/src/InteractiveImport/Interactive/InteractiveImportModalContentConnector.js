@@ -2,12 +2,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { sortDirections } from 'Helpers/Props';
-import { fetchInteractiveImportItems, setInteractiveImportSort, clearInteractiveImport, setInteractiveImportMode } from 'Store/Actions/interactiveImportActions';
-import createClientSideCollectionSelector from 'Store/Selectors/createClientSideCollectionSelector';
-import { executeCommand } from 'Store/Actions/commandActions';
-import { updateEpisodeFiles, deleteEpisodeFiles } from 'Store/Actions/episodeFileActions';
 import * as commandNames from 'Commands/commandNames';
+import { sortDirections } from 'Helpers/Props';
+import { executeCommand } from 'Store/Actions/commandActions';
+import { deleteEpisodeFiles, updateEpisodeFiles } from 'Store/Actions/episodeFileActions';
+import { clearInteractiveImport, fetchInteractiveImportItems, setInteractiveImportMode, setInteractiveImportSort } from 'Store/Actions/interactiveImportActions';
+import createClientSideCollectionSelector from 'Store/Selectors/createClientSideCollectionSelector';
+import hasDifferentItems from 'Utilities/Object/hasDifferentItems';
 import InteractiveImportModalContent from './InteractiveImportModalContent';
 
 function isSameEpisodeFile(file, originalFile) {
@@ -29,12 +30,7 @@ function isSameEpisodeFile(file, originalFile) {
     return false;
   }
 
-  const episodeIds = episodes.map((e) => e.id);
-  const originalEpisodeIds = originalFile.episodes ? originalFile.episodes.map((e) => e.id) : [];
-
-  return episodeIds.every((episodeId) => {
-    return originalEpisodeIds.indexOf(episodeId) >= 0;
-  });
+  return !hasDifferentItems(originalFile.episodes, episodes);
 }
 
 function createMapStateToProps() {
@@ -143,15 +139,15 @@ class InteractiveImportModalContentConnector extends Component {
 
   onSortPress = (sortKey, sortDirection) => {
     this.props.dispatchSetInteractiveImportSort({ sortKey, sortDirection });
-  }
+  };
 
   onFilterExistingFilesChange = (filterExistingFiles) => {
     this.setState({ filterExistingFiles });
-  }
+  };
 
   onImportModeChange = (importMode) => {
     this.props.dispatchSetInteractiveImportMode({ importMode });
-  }
+  };
 
   onDeleteSelectedPress = (selected) => {
     const {
@@ -168,7 +164,7 @@ class InteractiveImportModalContentConnector extends Component {
     }, []);
 
     dispatchDeleteEpisodeFiles({ episodeFileIds });
-  }
+  };
 
   onImportSelectedPress = (selected, importMode) => {
     const {
@@ -182,6 +178,11 @@ class InteractiveImportModalContentConnector extends Component {
     const existingFiles = [];
     const files = [];
 
+    if (importMode === 'chooseImportMode') {
+      this.setState({ interactiveImportErrorMessage: 'An import mode must be selected' });
+      return;
+    }
+
     items.forEach((item) => {
       const isSelected = selected.indexOf(item.id) > -1;
 
@@ -192,7 +193,7 @@ class InteractiveImportModalContentConnector extends Component {
           episodes,
           releaseGroup,
           quality,
-          language,
+          languages,
           episodeFileId
         } = item;
 
@@ -216,8 +217,8 @@ class InteractiveImportModalContentConnector extends Component {
           return;
         }
 
-        if (!language) {
-          this.setState({ interactiveImportErrorMessage: 'Language must be chosen for each selected file' });
+        if (!languages) {
+          this.setState({ interactiveImportErrorMessage: 'Language(s) must be chosen for each selected file' });
           return;
         }
 
@@ -229,7 +230,7 @@ class InteractiveImportModalContentConnector extends Component {
               id: episodeFileId,
               releaseGroup,
               quality,
-              language
+              languages
             });
 
             return;
@@ -243,7 +244,7 @@ class InteractiveImportModalContentConnector extends Component {
           episodeIds: episodes.map((e) => e.id),
           releaseGroup,
           quality,
-          language,
+          languages,
           downloadId: this.props.downloadId,
           episodeFileId
         });
@@ -273,7 +274,7 @@ class InteractiveImportModalContentConnector extends Component {
     if (shouldClose) {
       onModalClose();
     }
-  }
+  };
 
   //
   // Render

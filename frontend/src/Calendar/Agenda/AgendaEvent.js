@@ -1,16 +1,16 @@
+import classNames from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import classNames from 'classnames';
-import formatTime from 'Utilities/Date/formatTime';
-import padNumber from 'Utilities/Number/padNumber';
-import { icons, kinds } from 'Helpers/Props';
+import CalendarEventQueueDetails from 'Calendar/Events/CalendarEventQueueDetails';
 import getStatusStyle from 'Calendar/getStatusStyle';
 import Icon from 'Components/Icon';
 import Link from 'Components/Link/Link';
-import episodeEntities from 'Episode/episodeEntities';
 import EpisodeDetailsModal from 'Episode/EpisodeDetailsModal';
-import CalendarEventQueueDetails from 'Calendar/Events/CalendarEventQueueDetails';
+import episodeEntities from 'Episode/episodeEntities';
+import { icons, kinds } from 'Helpers/Props';
+import formatTime from 'Utilities/Date/formatTime';
+import padNumber from 'Utilities/Number/padNumber';
 import styles from './AgendaEvent.css';
 
 class AgendaEvent extends Component {
@@ -30,11 +30,11 @@ class AgendaEvent extends Component {
 
   onPress = () => {
     this.setState({ isDetailsModalOpen: true });
-  }
+  };
 
   onDetailsModalClose = () => {
     this.setState({ isDetailsModalOpen: false });
-  }
+  };
 
   //
   // Render
@@ -50,6 +50,7 @@ class AgendaEvent extends Component {
       absoluteEpisodeNumber,
       airDateUtc,
       monitored,
+      unverifiedSceneNumbering,
       hasFile,
       grabbed,
       queueItem,
@@ -70,15 +71,16 @@ class AgendaEvent extends Component {
     const statusStyle = getStatusStyle(hasFile, downloading, startTime, endTime, isMonitored);
     const missingAbsoluteNumber = series.seriesType === 'anime' && seasonNumber > 0 && !absoluteEpisodeNumber;
     const season = series.seasons.find((s) => s.seasonNumber === seasonNumber);
-    const seasonStatistics = season.statistics || {};
+    const seasonStatistics = season?.statistics || {};
 
     return (
-      <div>
+      <div className={styles.event}>
         <Link
-          className={styles.event}
-          component="div"
+          className={styles.underlay}
           onPress={this.onPress}
-        >
+        />
+
+        <div className={styles.overlay}>
           <div className={styles.date}>
             {
               showDate &&
@@ -132,6 +134,16 @@ class AgendaEvent extends Component {
             }
 
             {
+              unverifiedSceneNumbering && !missingAbsoluteNumber ?
+                <Icon
+                  className={styles.statusIcon}
+                  name={icons.WARNING}
+                  title="Scene number hasn't been verified yet"
+                /> :
+                null
+            }
+
+            {
               !!queueItem &&
                 <span className={styles.statusIcon}>
                   <CalendarEventQueueDetails
@@ -161,19 +173,6 @@ class AgendaEvent extends Component {
                   name={icons.EPISODE_FILE}
                   kind={kinds.WARNING}
                   title="Quality cutoff has not been met"
-                />
-            }
-
-            {
-              showCutoffUnmetIcon &&
-              !!episodeFile &&
-              episodeFile.languageCutoffNotMet &&
-              !episodeFile.qualityCutoffNotMet &&
-                <Icon
-                  className={styles.statusIcon}
-                  name={icons.EPISODE_FILE}
-                  kind={kinds.WARNING}
-                  title="Language cutoff has not been met"
                 />
             }
 
@@ -211,7 +210,7 @@ class AgendaEvent extends Component {
                 />
             }
           </div>
-        </Link>
+        </div>
 
         <EpisodeDetailsModal
           isOpen={this.state.isDetailsModalOpen}
@@ -237,6 +236,7 @@ AgendaEvent.propTypes = {
   absoluteEpisodeNumber: PropTypes.number,
   airDateUtc: PropTypes.string.isRequired,
   monitored: PropTypes.bool.isRequired,
+  unverifiedSceneNumbering: PropTypes.bool,
   hasFile: PropTypes.bool.isRequired,
   grabbed: PropTypes.bool,
   queueItem: PropTypes.object,

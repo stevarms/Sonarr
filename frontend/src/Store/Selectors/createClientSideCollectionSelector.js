@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { createSelector } from 'reselect';
-import findSelectedFilters from 'Utilities/Filter/findSelectedFilters';
 import { filterTypePredicates, filterTypes, sortDirections } from 'Helpers/Props';
+import findSelectedFilters from 'Utilities/Filter/findSelectedFilters';
 
 function getSortClause(sortKey, sortDirection, sortPredicates) {
   if (sortPredicates && sortPredicates.hasOwnProperty(sortKey)) {
@@ -44,7 +44,14 @@ function filter(items, state) {
         const predicate = filterPredicates[key];
 
         if (Array.isArray(value)) {
-          accepted = value.some((v) => predicate(item, v, type));
+          if (
+            type === filterTypes.NOT_CONTAINS ||
+            type === filterTypes.NOT_EQUAL
+          ) {
+            accepted = value.every((v) => predicate(item, v, type));
+          } else {
+            accepted = value.some((v) => predicate(item, v, type));
+          }
         } else {
           accepted = predicate(item, value, type);
         }

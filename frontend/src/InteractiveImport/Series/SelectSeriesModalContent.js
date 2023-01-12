@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { scrollDirections } from 'Helpers/Props';
-import Button from 'Components/Link/Button';
-import Scroller from 'Components/Scroller/Scroller';
 import TextInput from 'Components/Form/TextInput';
-import ModalContent from 'Components/Modal/ModalContent';
-import ModalHeader from 'Components/Modal/ModalHeader';
+import Button from 'Components/Link/Button';
 import ModalBody from 'Components/Modal/ModalBody';
+import ModalContent from 'Components/Modal/ModalContent';
 import ModalFooter from 'Components/Modal/ModalFooter';
+import ModalHeader from 'Components/Modal/ModalHeader';
+import Scroller from 'Components/Scroller/Scroller';
+import { scrollDirections } from 'Helpers/Props';
 import SelectSeriesRow from './SelectSeriesRow';
 import styles from './SelectSeriesModalContent.css';
 
@@ -29,7 +29,7 @@ class SelectSeriesModalContent extends Component {
 
   onFilterChange = ({ value }) => {
     this.setState({ filter: value });
-  }
+  };
 
   //
   // Render
@@ -37,6 +37,7 @@ class SelectSeriesModalContent extends Component {
   render() {
     const {
       items,
+      modalTitle,
       onSeriesSelect,
       onModalClose
     } = this.props;
@@ -47,7 +48,7 @@ class SelectSeriesModalContent extends Component {
     return (
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
-          Manual Import - Select Series
+          {modalTitle} - Select Series
         </ModalHeader>
 
         <ModalBody
@@ -96,6 +97,7 @@ class SelectSeriesModalContent extends Component {
 
 SelectSeriesModalContent.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
+  modalTitle: PropTypes.string.isRequired,
   onSeriesSelect: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired
 };

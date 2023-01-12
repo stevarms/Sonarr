@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Marr.Data;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.MediaFiles;
@@ -17,6 +16,7 @@ namespace NzbDrone.Core.Tv
         public const string AIR_DATE_FORMAT = "yyyy-MM-dd";
 
         public int SeriesId { get; set; }
+        public int TvdbId { get; set; }
         public int EpisodeFileId { get; set; }
         public int SeasonNumber { get; set; }
         public int EpisodeNumber { get; set; }

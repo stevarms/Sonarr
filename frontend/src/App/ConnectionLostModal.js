@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { kinds } from 'Helpers/Props';
 import Button from 'Components/Link/Button';
 import Modal from 'Components/Modal/Modal';
-import ModalContent from 'Components/Modal/ModalContent';
-import ModalHeader from 'Components/Modal/ModalHeader';
 import ModalBody from 'Components/Modal/ModalBody';
+import ModalContent from 'Components/Modal/ModalContent';
 import ModalFooter from 'Components/Modal/ModalFooter';
+import ModalHeader from 'Components/Modal/ModalHeader';
+import { kinds } from 'Helpers/Props';
 import styles from './ConnectionLostModal.css';
 
 function ConnectionLostModal(props) {
@@ -27,7 +27,7 @@ function ConnectionLostModal(props) {
 
         <ModalBody>
           <div>
-            Sonarr has lost it's connection to the backend and will need to be reloaded to restore functionality.
+            Sonarr has lost its connection to the backend and will need to be reloaded to restore functionality.
           </div>
 
           <div className={styles.automatic}>

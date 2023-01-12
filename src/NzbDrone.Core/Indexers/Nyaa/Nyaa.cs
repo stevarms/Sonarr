@@ -15,7 +15,6 @@ namespace NzbDrone.Core.Indexers.Nyaa
         public Nyaa(IHttpClient httpClient, IIndexerStatusService indexerStatusService, IConfigService configService, IParsingService parsingService, Logger logger)
             : base(httpClient, indexerStatusService, configService, parsingService, logger)
         {
-
         }
 
         public override IIndexerRequestGenerator GetRequestGenerator()
@@ -25,7 +24,7 @@ namespace NzbDrone.Core.Indexers.Nyaa
 
         public override IParseIndexerResponse GetParser()
         {
-            return new TorrentRssParser() { UseGuidInfoUrl = true, ParseSizeInDescription = true, ParseSeedersInDescription = true };
+            return new TorrentRssParser() { UseGuidInfoUrl = true, SizeElementName = "size", InfoHashElementName = "infoHash", PeersElementName = "leechers", CalculatePeersAsSum = true, SeedsElementName = "seeders" };
         }
     }
 }

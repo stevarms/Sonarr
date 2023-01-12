@@ -12,6 +12,7 @@ using NzbDrone.Core.Extras.Files;
 using NzbDrone.Core.Extras.Metadata.Files;
 using NzbDrone.Core.Extras.Others;
 using NzbDrone.Core.MediaFiles;
+using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Extras.Metadata
@@ -202,9 +203,14 @@ namespace NzbDrone.Core.Extras.Metadata
             return movedFiles;
         }
 
-        public override ExtraFile Import(Series series, EpisodeFile episodeFile, string path, string extension, bool readOnly)
+        public override bool CanImportFile(LocalEpisode localEpisode, EpisodeFile episodeFile, string path, string extension, bool readOnly)
         {
-            return null;
+            return false;
+        }
+
+        public override IEnumerable<ExtraFile> ImportFiles(LocalEpisode localEpisode, EpisodeFile episodeFile, List<string> files, bool isReadOnly)
+        {
+            return Enumerable.Empty<ExtraFile>();
         }
 
         private List<MetadataFile> GetMetadataFilesForConsumer(IMetadata consumer, List<MetadataFile> seriesMetadata)
@@ -410,7 +416,7 @@ namespace NzbDrone.Core.Extras.Metadata
                         _diskTransferService.TransferFile(existingFullPath, fullPath, TransferMode.Move);
                         existingMetadata.RelativePath = image.RelativePath;
 
-                        return new List<MetadataFile>{ existingMetadata };
+                        return new List<MetadataFile> { existingMetadata };
                     }
                 }
 
@@ -448,6 +454,7 @@ namespace NzbDrone.Core.Extras.Metadata
                 {
                     _diskProvider.CopyFile(image.Url, fullPath);
                 }
+
                 _mediaFileAttributeService.SetFilePermissions(fullPath);
             }
             catch (HttpException ex)
@@ -479,7 +486,7 @@ namespace NzbDrone.Core.Extras.Metadata
                 return null;
             }
 
-            //Remove duplicate metadata files from DB and disk
+            // Remove duplicate metadata files from DB and disk
             foreach (var file in matchingMetadataFiles.Skip(1))
             {
                 var path = Path.Combine(series.Path, file.RelativePath);

@@ -18,7 +18,7 @@ namespace NzbDrone.Core.Extras.Files
     {
         List<TExtraFile> GetFilesBySeries(int seriesId);
         List<TExtraFile> GetFilesByEpisodeFile(int episodeFileId);
-        TExtraFile FindByPath(string path);
+        TExtraFile FindByPath(int seriesId, string path);
         void Upsert(TExtraFile extraFile);
         void Upsert(List<TExtraFile> extraFiles);
         void Delete(int id);
@@ -59,9 +59,9 @@ namespace NzbDrone.Core.Extras.Files
             return _repository.GetFilesByEpisodeFile(episodeFileId);
         }
 
-        public TExtraFile FindByPath(string path)
+        public TExtraFile FindByPath(int seriesId, string path)
         {
-            return _repository.FindByPath(path);
+            return _repository.FindByPath(seriesId, path);
         }
 
         public void Upsert(TExtraFile extraFile)
@@ -97,8 +97,8 @@ namespace NzbDrone.Core.Extras.Files
 
         public void HandleAsync(SeriesDeletedEvent message)
         {
-            _logger.Debug("Deleting Extra from database for series: {0}", message.Series);
-            _repository.DeleteForSeries(message.Series.Id);
+            _logger.Debug("Deleting Extra from database for series: {0}", string.Join(',', message.Series));
+            _repository.DeleteForSeriesIds(message.Series.Select(m => m.Id).ToList());
         }
 
         public void Handle(EpisodeFileDeletedEvent message)
@@ -109,7 +109,6 @@ namespace NzbDrone.Core.Extras.Files
             {
                 _logger.Debug("Removing episode file from DB as part of cleanup routine, not deleting extra files from disk.");
             }
-
             else
             {
                 var series = _seriesService.GetSeries(message.EpisodeFile.SeriesId);

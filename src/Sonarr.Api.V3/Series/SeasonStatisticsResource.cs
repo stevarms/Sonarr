@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NzbDrone.Core.SeriesStats;
 
 namespace Sonarr.Api.V3.Series
@@ -11,12 +12,16 @@ namespace Sonarr.Api.V3.Series
         public int EpisodeCount { get; set; }
         public int TotalEpisodeCount { get; set; }
         public long SizeOnDisk { get; set; }
+        public List<string> ReleaseGroups { get; set; }
 
         public decimal PercentOfEpisodes
         {
             get
             {
-                if (EpisodeCount == 0) return 0;
+                if (EpisodeCount == 0)
+                {
+                    return 0;
+                }
 
                 return (decimal)EpisodeFileCount / (decimal)EpisodeCount * 100;
             }
@@ -27,7 +32,10 @@ namespace Sonarr.Api.V3.Series
     {
         public static SeasonStatisticsResource ToResource(this SeasonStatistics model)
         {
-            if (model == null) return null;
+            if (model == null)
+            {
+                return null;
+            }
 
             return new SeasonStatisticsResource
             {
@@ -36,7 +44,8 @@ namespace Sonarr.Api.V3.Series
                 EpisodeFileCount = model.EpisodeFileCount,
                 EpisodeCount = model.EpisodeCount,
                 TotalEpisodeCount = model.TotalEpisodeCount,
-                SizeOnDisk = model.SizeOnDisk
+                SizeOnDisk = model.SizeOnDisk,
+                ReleaseGroups = model.ReleaseGroups
             };
         }
     }

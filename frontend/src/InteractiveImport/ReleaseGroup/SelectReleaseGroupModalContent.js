@@ -1,15 +1,16 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { inputTypes, kinds } from 'Helpers/Props';
-import Button from 'Components/Link/Button';
 import Form from 'Components/Form/Form';
 import FormGroup from 'Components/Form/FormGroup';
-import FormLabel from 'Components/Form/FormLabel';
 import FormInputGroup from 'Components/Form/FormInputGroup';
-import ModalContent from 'Components/Modal/ModalContent';
-import ModalHeader from 'Components/Modal/ModalHeader';
+import FormLabel from 'Components/Form/FormLabel';
+import Button from 'Components/Link/Button';
 import ModalBody from 'Components/Modal/ModalBody';
+import ModalContent from 'Components/Modal/ModalContent';
 import ModalFooter from 'Components/Modal/ModalFooter';
+import ModalHeader from 'Components/Modal/ModalHeader';
+import { inputTypes, kinds, scrollDirections } from 'Helpers/Props';
+import styles from './SelectReleaseGroupModalContent.css';
 
 class SelectReleaseGroupModalContent extends Component {
 
@@ -33,17 +34,18 @@ class SelectReleaseGroupModalContent extends Component {
 
   onReleaseGroupChange = ({ value }) => {
     this.setState({ releaseGroup: value });
-  }
+  };
 
   onReleaseGroupSelect = () => {
     this.props.onReleaseGroupSelect(this.state);
-  }
+  };
 
   //
   // Render
 
   render() {
     const {
+      modalTitle,
       onModalClose
     } = this.props;
 
@@ -54,10 +56,13 @@ class SelectReleaseGroupModalContent extends Component {
     return (
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
-          Manual Import - Set Release Group
+          {modalTitle} - Set Release Group
         </ModalHeader>
 
-        <ModalBody>
+        <ModalBody
+          className={styles.modalBody}
+          scrollDirection={scrollDirections.NONE}
+        >
           <Form>
             <FormGroup>
               <FormLabel>Release Group</FormLabel>
@@ -66,6 +71,7 @@ class SelectReleaseGroupModalContent extends Component {
                 type={inputTypes.TEXT}
                 name="releaseGroup"
                 value={releaseGroup}
+                autoFocus={true}
                 onChange={this.onReleaseGroupChange}
               />
             </FormGroup>
@@ -91,6 +97,7 @@ class SelectReleaseGroupModalContent extends Component {
 
 SelectReleaseGroupModalContent.propTypes = {
   releaseGroup: PropTypes.string.isRequired,
+  modalTitle: PropTypes.string.isRequired,
   onReleaseGroupSelect: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired
 };

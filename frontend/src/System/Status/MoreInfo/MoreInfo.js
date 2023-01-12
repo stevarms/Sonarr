@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Link from 'Components/Link/Link';
-import FieldSet from 'Components/FieldSet';
 import DescriptionList from 'Components/DescriptionList/DescriptionList';
-import DescriptionListItemTitle from 'Components/DescriptionList/DescriptionListItemTitle';
 import DescriptionListItemDescription from 'Components/DescriptionList/DescriptionListItemDescription';
+import DescriptionListItemTitle from 'Components/DescriptionList/DescriptionListItemTitle';
+import FieldSet from 'Components/FieldSet';
+import Link from 'Components/Link/Link';
 
 class MoreInfo extends Component {
 
@@ -31,7 +31,7 @@ class MoreInfo extends Component {
 
           <DescriptionListItemTitle>Twitter</DescriptionListItemTitle>
           <DescriptionListItemDescription>
-            <Link to="https://sonarr.tv/">@sonarrtv</Link>
+            <Link to="https://twitter.com/sonarrtv">@sonarrtv</Link>
           </DescriptionListItemDescription>
 
           <DescriptionListItemTitle>Discord</DescriptionListItemTitle>

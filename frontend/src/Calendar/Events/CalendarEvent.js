@@ -1,15 +1,15 @@
+import classNames from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
-import classNames from 'classnames';
-import { icons, kinds } from 'Helpers/Props';
-import formatTime from 'Utilities/Date/formatTime';
-import padNumber from 'Utilities/Number/padNumber';
+import React, { Component } from 'react';
 import getStatusStyle from 'Calendar/getStatusStyle';
-import episodeEntities from 'Episode/episodeEntities';
 import Icon from 'Components/Icon';
 import Link from 'Components/Link/Link';
 import EpisodeDetailsModal from 'Episode/EpisodeDetailsModal';
+import episodeEntities from 'Episode/episodeEntities';
+import { icons, kinds } from 'Helpers/Props';
+import formatTime from 'Utilities/Date/formatTime';
+import padNumber from 'Utilities/Number/padNumber';
 import CalendarEventQueueDetails from './CalendarEventQueueDetails';
 import styles from './CalendarEvent.css';
 
@@ -33,13 +33,13 @@ class CalendarEvent extends Component {
     this.setState({ isDetailsModalOpen: true }, () => {
       this.props.onEventModalOpenToggle(true);
     });
-  }
+  };
 
   onDetailsModalClose = () => {
     this.setState({ isDetailsModalOpen: false }, () => {
       this.props.onEventModalOpenToggle(false);
     });
-  }
+  };
 
   //
   // Render
@@ -79,20 +79,23 @@ class CalendarEvent extends Component {
     const statusStyle = getStatusStyle(hasFile, isDownloading, startTime, endTime, isMonitored);
     const missingAbsoluteNumber = series.seriesType === 'anime' && seasonNumber > 0 && !absoluteEpisodeNumber;
     const season = series.seasons.find((s) => s.seasonNumber === seasonNumber);
-    const seasonStatistics = season.statistics || {};
+    const seasonStatistics = season?.statistics || {};
 
     return (
-      <Fragment>
+      <div
+        className={classNames(
+          styles.event,
+          styles[statusStyle],
+          colorImpairedMode && 'colorImpaired',
+          fullColorEvents && 'fullColor'
+        )}
+      >
         <Link
-          className={classNames(
-            styles.event,
-            styles[statusStyle],
-            colorImpairedMode && 'colorImpaired',
-            fullColorEvents && 'fullColor'
-          )}
-          component="div"
+          className={styles.underlay}
           onPress={this.onPress}
-        >
+        />
+
+        <div className={styles.overlay} >
           <div className={styles.info}>
             <div className={styles.seriesTitle}>
               {series.title}
@@ -100,21 +103,21 @@ class CalendarEvent extends Component {
 
             <div className={styles.statusContainer}>
               {
-                unverifiedSceneNumbering ?
-                  <Icon
-                    className={styles.statusIcon}
-                    name={icons.WARNING}
-                    title="Scene number hasn\'t been verified yet."
-                  /> :
-                  null
-              }
-
-              {
                 missingAbsoluteNumber ?
                   <Icon
                     className={styles.statusIcon}
                     name={icons.WARNING}
                     title="Episode does not have an absolute episode number"
+                  /> :
+                  null
+              }
+
+              {
+                unverifiedSceneNumbering && !missingAbsoluteNumber ?
+                  <Icon
+                    className={styles.statusIcon}
+                    name={icons.WARNING}
+                    title="Scene number hasn't been verified yet"
                   /> :
                   null
               }
@@ -148,20 +151,6 @@ class CalendarEvent extends Component {
                     name={icons.EPISODE_FILE}
                     kind={fullColorEvents ? kinds.DEFAULT : kinds.WARNING}
                     title="Quality cutoff has not been met"
-                  /> :
-                  null
-              }
-
-              {
-                showCutoffUnmetIcon &&
-                !!episodeFile &&
-                episodeFile.languageCutoffNotMet &&
-                !episodeFile.qualityCutoffNotMet ?
-                  <Icon
-                    className={styles.statusIcon}
-                    name={icons.EPISODE_FILE}
-                    kind={fullColorEvents ? kinds.DEFAULT : kinds.WARNING}
-                    title="Language cutoff has not been met"
                   /> :
                   null
               }
@@ -229,7 +218,7 @@ class CalendarEvent extends Component {
           <div className={styles.airTime}>
             {formatTime(airDateUtc, timeFormat)} - {formatTime(endTime.toISOString(), timeFormat, { includeMinuteZero: true })}
           </div>
-        </Link>
+        </div>
 
         <EpisodeDetailsModal
           isOpen={this.state.isDetailsModalOpen}
@@ -240,7 +229,7 @@ class CalendarEvent extends Component {
           showOpenSeriesButton={true}
           onModalClose={this.onDetailsModalClose}
         />
-      </Fragment>
+      </div>
     );
   }
 }
@@ -255,9 +244,9 @@ CalendarEvent.propTypes = {
   absoluteEpisodeNumber: PropTypes.number,
   airDateUtc: PropTypes.string.isRequired,
   monitored: PropTypes.bool.isRequired,
+  unverifiedSceneNumbering: PropTypes.bool,
   hasFile: PropTypes.bool.isRequired,
   grabbed: PropTypes.bool,
-  unverifiedSceneNumbering: PropTypes.bool,
   queueItem: PropTypes.object,
   showEpisodeInformation: PropTypes.bool.isRequired,
   showFinaleIcon: PropTypes.bool.isRequired,

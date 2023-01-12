@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
@@ -47,7 +47,6 @@ namespace NzbDrone.Core.Notifications
                 {
                     qualityString += " v" + quality.Revision.Version;
                 }
-
                 else
                 {
                     qualityString += " Proper";
@@ -119,7 +118,8 @@ namespace NzbDrone.Core.Notifications
                 Series = message.Episode.Series,
                 Quality = message.Episode.ParsedEpisodeInfo.Quality,
                 Episode = message.Episode,
-                DownloadClient = message.DownloadClient,
+                DownloadClientType = message.DownloadClient,
+                DownloadClientName = message.DownloadClientName,
                 DownloadId = message.DownloadId
             };
 
@@ -127,10 +127,13 @@ namespace NzbDrone.Core.Notifications
             {
                 try
                 {
-                    if (!ShouldHandleSeries(notification.Definition, message.Episode.Series)) continue;
+                    if (!ShouldHandleSeries(notification.Definition, message.Episode.Series))
+                    {
+                        continue;
+                    }
+
                     notification.OnGrab(grabMessage);
                 }
-
                 catch (Exception ex)
                 {
                     _logger.Error(ex, "Unable to send OnGrab notification to {0}", notification.Definition.Name);
@@ -152,7 +155,7 @@ namespace NzbDrone.Core.Notifications
                 EpisodeFile = message.ImportedEpisode,
                 OldFiles = message.OldFiles,
                 SourcePath = message.EpisodeInfo.Path,
-                DownloadClient = message.DownloadClientInfo?.Name,
+                DownloadClientInfo = message.DownloadClientInfo,
                 DownloadId = message.DownloadId
             };
 
@@ -168,7 +171,6 @@ namespace NzbDrone.Core.Notifications
                         }
                     }
                 }
-
                 catch (Exception ex)
                 {
                     _logger.Warn(ex, "Unable to send OnDownload notification to: " + notification.Definition.Name);
@@ -187,7 +189,6 @@ namespace NzbDrone.Core.Notifications
                         notification.OnRename(message.Series, message.RenamedFiles);
                     }
                 }
-
                 catch (Exception ex)
                 {
                     _logger.Warn(ex, "Unable to send OnRename notification to: " + notification.Definition.Name);
@@ -251,26 +252,37 @@ namespace NzbDrone.Core.Notifications
 
         public void Handle(SeriesDeletedEvent message)
         {
-            var deleteMessage = new SeriesDeleteMessage(message.Series, message.DeleteFiles);
-
-            foreach (var notification in _notificationFactory.OnSeriesDeleteEnabled())
+            foreach (var series in message.Series)
             {
-                try
+                var deleteMessage = new SeriesDeleteMessage(series, message.DeleteFiles);
+
+                foreach (var notification in _notificationFactory.OnSeriesDeleteEnabled())
                 {
-                    if (ShouldHandleSeries(notification.Definition, deleteMessage.Series))
+                    try
                     {
-                        notification.OnSeriesDelete(deleteMessage);
+                        if (ShouldHandleSeries(notification.Definition, deleteMessage.Series))
+                        {
+                            notification.OnSeriesDelete(deleteMessage);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warn(ex, "Unable to send OnDelete notification to: " + notification.Definition.Name);
+                    catch (Exception ex)
+                    {
+                        _logger.Warn(ex, "Unable to send OnDelete notification to: " + notification.Definition.Name);
+                    }
                 }
             }
         }
 
         public void Handle(HealthCheckFailedEvent message)
         {
+            // Don't send health check notifications during the start up grace period,
+            // once that duration expires they they'll be retested and fired off if necessary.
+
+            if (message.IsInStartupGraceperiod)
+            {
+                return;
+            }
+
             foreach (var notification in _notificationFactory.OnHealthIssueEnabled())
             {
                 try
@@ -280,7 +292,6 @@ namespace NzbDrone.Core.Notifications
                         notification.OnHealthIssue(message.HealthCheck);
                     }
                 }
-
                 catch (Exception ex)
                 {
                     _logger.Warn(ex, "Unable to send OnHealthIssue notification to: " + notification.Definition.Name);

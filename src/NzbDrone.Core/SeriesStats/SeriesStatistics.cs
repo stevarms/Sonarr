@@ -13,6 +13,7 @@ namespace NzbDrone.Core.SeriesStats
         public int EpisodeCount { get; set; }
         public int TotalEpisodeCount { get; set; }
         public long SizeOnDisk { get; set; }
+        public List<string> ReleaseGroups { get; set; }
         public List<SeasonStatistics> SeasonStatistics { get; set; }
 
         public DateTime? NextAiring
@@ -23,7 +24,10 @@ namespace NzbDrone.Core.SeriesStats
 
                 try
                 {
-                    if (!DateTime.TryParse(NextAiringString, out nextAiring)) return null;
+                    if (!DateTime.TryParse(NextAiringString, out nextAiring))
+                    {
+                        return null;
+                    }
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -43,7 +47,10 @@ namespace NzbDrone.Core.SeriesStats
 
                 try
                 {
-                    if (!DateTime.TryParse(PreviousAiringString, out previousAiring)) return null;
+                    if (!DateTime.TryParse(PreviousAiringString, out previousAiring))
+                    {
+                        return null;
+                    }
                 }
                 catch (ArgumentOutOfRangeException)
                 {

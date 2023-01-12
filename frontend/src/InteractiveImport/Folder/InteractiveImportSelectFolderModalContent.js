@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { icons, kinds, sizes } from 'Helpers/Props';
-import Button from 'Components/Link/Button';
-import Icon from 'Components/Icon';
 import PathInputConnector from 'Components/Form/PathInputConnector';
-import ModalContent from 'Components/Modal/ModalContent';
-import ModalHeader from 'Components/Modal/ModalHeader';
+import Icon from 'Components/Icon';
+import Button from 'Components/Link/Button';
 import ModalBody from 'Components/Modal/ModalBody';
+import ModalContent from 'Components/Modal/ModalContent';
 import ModalFooter from 'Components/Modal/ModalFooter';
+import ModalHeader from 'Components/Modal/ModalHeader';
 import Table from 'Components/Table/Table';
 import TableBody from 'Components/Table/TableBody';
+import { icons, kinds, sizes } from 'Helpers/Props';
 import RecentFolderRow from './RecentFolderRow';
 import styles from './InteractiveImportSelectFolderModalContent.css';
 
@@ -46,19 +46,19 @@ class InteractiveImportSelectFolderModalContent extends Component {
 
   onPathChange = ({ value }) => {
     this.setState({ folder: value });
-  }
+  };
 
   onRecentPathPress = (folder) => {
     this.setState({ folder });
-  }
+  };
 
   onQuickImportPress = () => {
     this.props.onQuickImportPress(this.state.folder);
-  }
+  };
 
   onInteractiveImportPress = () => {
     this.props.onInteractiveImportPress(this.state.folder);
-  }
+  };
 
   //
   // Render
@@ -67,6 +67,7 @@ class InteractiveImportSelectFolderModalContent extends Component {
     const {
       recentFolders,
       onRemoveRecentFolderPress,
+      modalTitle,
       onModalClose
     } = this.props;
 
@@ -75,7 +76,7 @@ class InteractiveImportSelectFolderModalContent extends Component {
     return (
       <ModalContent onModalClose={onModalClose}>
         <ModalHeader>
-          Manual Import - Select Folder
+          {modalTitle} - Select Folder
         </ModalHeader>
 
         <ModalBody>
@@ -159,6 +160,7 @@ class InteractiveImportSelectFolderModalContent extends Component {
 
 InteractiveImportSelectFolderModalContent.propTypes = {
   recentFolders: PropTypes.arrayOf(PropTypes.object).isRequired,
+  modalTitle: PropTypes.string.isRequired,
   onQuickImportPress: PropTypes.func.isRequired,
   onInteractiveImportPress: PropTypes.func.isRequired,
   onRemoveRecentFolderPress: PropTypes.func.isRequired,
